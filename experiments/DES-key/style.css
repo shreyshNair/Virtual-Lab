@@ -361,6 +361,12 @@
   color: var(--lab-accent-dark);
 }
 
+.quiz-comment {
+  margin-top: 0.35rem;
+  font-size: 0.9rem;
+  color: var(--lab-text-muted);
+}
+
 @media (max-width: 600px) {
   .exp-header {
     padding: 1.25rem 1rem;

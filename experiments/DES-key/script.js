@@ -189,6 +189,16 @@ const QUIZ_MCQS = [
   },
 ];
 
+// Feedback comment shown alongside the score, based on percentage correct.
+function scoreComment(correct, total) {
+  const pct = (correct / total) * 100;
+  if (pct === 100) return "Perfect score! You've fully grasped the DES key schedule.";
+  if (pct >= 80) return "Excellent work — you have a strong understanding of the DES key schedule.";
+  if (pct >= 60) return "Good effort. Revisit PC-1, PC-2, and the shift schedule to firm up the parts you missed.";
+  if (pct >= 40) return "Fair attempt — re-read the Theory section, then try generating a new key and retake the quiz.";
+  return "Needs improvement — work through the Theory and Procedure sections again before retrying the quiz.";
+}
+
 // Build 2 questions whose correct answer depends on the current schedule.
 function buildComputedQuestions(schedule) {
   const r5 = schedule.rounds[4];
@@ -395,6 +405,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const quizForm = document.getElementById("quiz-form");
   const quizResult = document.getElementById("quiz-result");
+  const quizComment = document.getElementById("quiz-comment");
 
   function renderQuiz(schedule) {
     const computed = buildComputedQuestions(schedule);
@@ -403,6 +414,8 @@ document.addEventListener("DOMContentLoaded", () => {
     quizForm.innerHTML = "";
     quizResult.hidden = true;
     quizResult.textContent = "";
+    quizComment.hidden = true;
+    quizComment.textContent = "";
 
     all.forEach((item, qIdx) => {
       const fieldset = document.createElement("fieldset");
@@ -468,6 +481,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     quizResult.hidden = false;
     quizResult.textContent = `You scored ${correct} / ${meta.length}.`;
+    quizComment.textContent = scoreComment(correct, meta.length);
+    quizComment.hidden = false;
   });
 
   // Expose for manual testing in the browser console / test harness.
