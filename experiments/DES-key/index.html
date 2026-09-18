@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DES Key Generation | Cryptography Virtual Lab</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<main class="experiment" id="exp-des-key">
+
+  <header class="exp-header">
+    <h1>Key Generation in the DES Algorithm</h1>
+    <p class="exp-subtitle">Demonstrate generation of the 16 round-keys used by the Data Encryption Standard</p>
+  </header>
+
+  <nav class="exp-tabs" aria-label="Section navigation">
+    <a href="#aim">Aim</a>
+    <a href="#theory">Theory</a>
+    <a href="#procedure">Procedure</a>
+    <a href="#simulation">Simulation</a>
+    <a href="#quiz">Quiz</a>
+    <a href="#references">References</a>
+  </nav>
+
+  <section id="aim" class="exp-section">
+    <h2>Aim &amp; Objectives</h2>
+    <ul>
+      <li>Understand how the DES key schedule derives sixteen 48-bit round keys from a single 64-bit key.</li>
+      <li>Demonstrate the role of Permuted Choice 1 (PC-1) and Permuted Choice 2 (PC-2) in the key schedule.</li>
+      <li>Observe the per-round left-circular-shift schedule applied to the two 28-bit key halves (C and D).</li>
+      <li>Generate and inspect all 16 round keys for a user-supplied or sample 64-bit key.</li>
+    </ul>
+  </section>
+
+  <section id="theory" class="exp-section">
+    <h2>Theory</h2>
+    <p>
+      DES (Data Encryption Standard) uses a 64-bit key, of which only 56 bits are effective —
+      the remaining 8 bits (every 8th bit) are parity bits and are discarded early in the key
+      schedule. From these 56 bits, DES derives sixteen distinct 48-bit <strong>round keys</strong>
+      K<sub>1</sub>&hellip;K<sub>16</sub>, one used in each of the algorithm's 16 encryption rounds.
+    </p>
+    <ol>
+      <li>
+        <strong>Permuted Choice 1 (PC-1):</strong> the 64-bit key is permuted and reduced to 56 bits,
+        dropping the 8 parity bits.
+      </li>
+      <li>
+        <strong>Split:</strong> the 56-bit result is split into two 28-bit halves, C<sub>0</sub> and D<sub>0</sub>.
+      </li>
+      <li>
+        <strong>Per-round left shift:</strong> before round <em>i</em>, both C and D are
+        left-circular-shifted independently by 1 bit (rounds 1, 2, 9, 16) or 2 bits (all other rounds),
+        producing C<sub>i</sub> and D<sub>i</sub>.
+      </li>
+      <li>
+        <strong>Permuted Choice 2 (PC-2):</strong> C<sub>i</sub> and D<sub>i</sub> are concatenated (56 bits)
+        and permuted/compressed down to the 48-bit round key K<sub>i</sub>.
+      </li>
+      <li>
+        Steps 3&ndash;4 repeat for all 16 rounds, each round carrying forward the previous round's
+        C and D (not the original C<sub>0</sub>/D<sub>0</sub>).
+      </li>
+    </ol>
+    <p>
+      Because each round key depends on the running C<sub>i</sub>/D<sub>i</sub> state, the schedule
+      is easy to compute forward but the 28-bit halves cycle back to C<sub>0</sub>/D<sub>0</sub>
+      after all shifts in a full 16-round pass (the shifts sum to 28).
+    </p>
+  </section>
+
+  <section id="procedure" class="exp-section">
+    <h2>Procedure</h2>
+    <ol>
+      <li>Enter a 64-bit DES key as 16 hexadecimal digits, or click "Load sample key" / "Random key".</li>
+      <li>Click <strong>Generate Round Keys</strong>.</li>
+      <li>Observe the 64-bit key with its 8 parity bits highlighted.</li>
+      <li>Observe the 56-bit key produced by PC-1, and its split into C<sub>0</sub> and D<sub>0</sub>.</li>
+      <li>Browse the table of all 16 round keys; click <strong>View</strong> on any row (or use Prev/Next)
+        to see that round's shift and PC-2 derivation in detail.</li>
+      <li>Attempt the quiz to test your understanding.</li>
+    </ol>
+  </section>
+
+  <section id="simulation" class="exp-section">
+    <h2>Interactive Simulation</h2>
+
+    <div class="key-input-row">
+      <label for="key-input">64-bit key (16 hex digits):</label>
+      <input type="text" id="key-input" maxlength="16" placeholder="e.g. 133457799BBCDFF1" spellcheck="false" />
+      <button type="button" id="generate-btn" class="btn btn-primary">Generate Round Keys</button>
+      <button type="button" id="sample-btn" class="btn btn-secondary">Load Sample Key</button>
+      <button type="button" id="random-btn" class="btn btn-secondary">Random Key</button>
+    </div>
+    <p id="key-error" class="error-text" hidden></p>
+
+    <div id="stages-section" hidden>
+
+      <div class="stage-card">
+        <h3>Stage 1 &mdash; Original 64-bit key (parity bits highlighted)</h3>
+        <div class="bit-string" id="key-bits-display"></div>
+        <p class="legend"><span class="swatch swatch-parity"></span> parity bit (dropped by PC-1)</p>
+      </div>
+
+      <div class="stage-card">
+        <h3>Stage 2 &mdash; After PC-1 (56 bits)</h3>
+        <div class="bit-string" id="permuted-key-display"></div>
+      </div>
+
+      <div class="stage-card">
+        <h3>Stage 3 &mdash; Split into C&#8320; and D&#8320; (28 bits each)</h3>
+        <div class="bit-row"><span class="bit-label">C&#8320;</span><div class="bit-string" id="c0-display"></div></div>
+        <div class="bit-row"><span class="bit-label">D&#8320;</span><div class="bit-string" id="d0-display"></div></div>
+      </div>
+
+      <div class="stage-card">
+        <h3>Stage 4 &mdash; All 16 round keys</h3>
+        <table id="rounds-table" class="rounds-table">
+          <thead>
+            <tr><th>Round</th><th>Left shift</th><th>Round key K<sub>i</sub> (hex)</th><th></th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <div class="stage-card">
+        <h3>Round detail</h3>
+        <div class="round-nav">
+          <button type="button" id="prev-round-btn" class="btn btn-secondary">&#9664; Prev round</button>
+          <span id="round-indicator">Round 1 of 16</span>
+          <button type="button" id="next-round-btn" class="btn btn-secondary">Next round &#9654;</button>
+        </div>
+        <div id="round-detail" class="round-detail"></div>
+      </div>
+
+    </div>
+  </section>
+
+  <section id="quiz" class="exp-section">
+    <h2>Assessment / Quiz</h2>
+    <p>Generate round keys above first &mdash; two of the questions below use your own key's results.</p>
+    <form id="quiz-form" class="quiz-form"></form>
+    <button type="button" id="quiz-submit-btn" class="btn btn-primary">Submit Quiz</button>
+    <p id="quiz-result" class="quiz-result" hidden></p>
+  </section>
+
+  <section id="references" class="exp-section">
+    <h2>References</h2>
+    <ul>
+      <li>W. Stallings, <em>Cryptography and Network Security: Principles and Practice</em>, Pearson &mdash; DES key schedule and worked example (key 133457799BBCDFF1).</li>
+      <li>FIPS PUB 46-3, <em>Data Encryption Standard (DES)</em>, National Institute of Standards and Technology.</li>
+      <li>B. A. Forouzan, <em>Cryptography and Network Security</em>, McGraw-Hill &mdash; DES key generation chapter.</li>
+    </ul>
+  </section>
+
+</main>
+<script src="script.js"></script>
+</body>
+</html>

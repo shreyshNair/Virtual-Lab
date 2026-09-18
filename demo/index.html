@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Demo Shell | DES Key Generation</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f2ece8; }
+  .shell-header {
+    background: #8a5548;
+    color: #fff;
+    padding: 0.9rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .shell-header .brand { font-weight: 700; font-size: 1.05rem; }
+  .shell-header .crumb { opacity: 0.85; font-size: 0.9rem; }
+  .shell-note {
+    max-width: 960px;
+    margin: 1rem auto 0;
+    padding: 0.6rem 1rem;
+    background: #fff8ee;
+    border: 1px solid #eddcb8;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    color: #6b5d58;
+  }
+  iframe {
+    width: 100%;
+    border: none;
+    display: block;
+    min-height: 100vh;
+  }
+</style>
+</head>
+<body>
+  <header class="shell-header">
+    <span class="brand">Cryptography Virtual Lab</span>
+    <span class="crumb">&raquo; Experiments &raquo; Key Generation in DES Algorithm</span>
+  </header>
+  <p class="shell-note">
+    This is a lightweight preview shell for demoing the module standalone before it is
+    wired into the integration team's main application. The actual experiment lives at
+    <code>experiments/DES-key/index.html</code> and does not depend on this page.
+  </p>
+  <iframe src="../experiments/DES-key/index.html" title="DES Key Generation experiment" id="exp-frame"></iframe>
+  <script>
+    // Keep the iframe tall enough to show the whole experiment without an inner scrollbar.
+    const frame = document.getElementById("exp-frame");
+    function resize() {
+      try {
+        const doc = frame.contentDocument;
+        if (doc && doc.body) frame.style.height = doc.body.scrollHeight + 40 + "px";
+      } catch (e) {
+        /* cross-origin fallback: leave default height */
+      }
+    }
+    frame.addEventListener("load", () => {
+      resize();
+      setTimeout(resize, 300);
+    });
+  </script>
+</body>
+</html>
